@@ -1,0 +1,226 @@
+// Top-level build file where you can add configuration options common to all
+// sub-projects/modules.
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.1.3'
+    }
+}
+
+apply plugin: 'com.android.application'
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+        maven { url "https://raw.github.com/abdularis/libwebrtc-android/repo/" }
+    }
+}
+
+repositories {
+    google()
+    jcenter()
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+    maven { url "https://raw.github.com/abdularis/libwebrtc-android/repo/" }
+}
+
+configurations {
+    playstoreImplementation
+    gitImplementation
+    compile.exclude group: 'org.jetbrains' , module:'annotations'
+}
+
+dependencies {
+    implementation project(':libs:android-transcoder')
+    playstoreImplementation('com.google.firebase:firebase-messaging:21.1.0') { ///higher versions are causing crashes due to missing project IDs
+        exclude group: 'com.google.firebase', module: 'firebase-core'
+        exclude group: 'com.google.firebase', module: 'firebase-analytics'
+        exclude group: 'com.google.firebase', module: 'firebase-measurement-connector'
+    }
+    playstoreImplementation 'com.android.installreferrer:installreferrer:2.1'
+    playstoreImplementation 'com.google.gms:google-services:4.3.5'
+    implementation 'org.sufficientlysecure:openpgp-api:10.0'
+    implementation('com.theartofdev.edmodo:android-image-cropper:2.8.0') {
+        exclude group: 'com.android.support', module: 'appcompat-v7'
+        exclude group: 'com.android.support', module: 'exifinterface'
+    }
+    implementation 'org.bouncycastle:bcmail-jdk15on:1.64'
+    implementation 'org.gnu.inet:libidn:1.15'
+    implementation 'com.google.zxing:core:3.3.3' // > 3.3.x not working below SDK 24
+    implementation 'de.measite.minidns:minidns-hla:0.2.4'
+    implementation 'me.leolin:ShortcutBadger:1.1.22@aar'
+    implementation 'org.whispersystems:signal-protocol-java:2.6.2'
+    implementation 'com.makeramen:roundedimageview:2.3.0'
+    implementation 'jetty:javax.servlet:5.1.12'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.legacy:legacy-support-v13:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.exifinterface:exifinterface:1.3.2'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.emoji:emoji:1.1.0'
+    gitImplementation 'androidx.emoji:emoji-appcompat:1.1.0'
+    gitImplementation 'androidx.emoji:emoji-bundled:1.1.0'
+    implementation 'com.google.android.material:material:1.0.0' // higher versions than 1.0.0 cause strange fab design
+    implementation 'androidx.cardview:cardview:1.0.0' // for compatibility
+    implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.12.1'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.12.1'
+    implementation 'pub.devrel:easypermissions:3.0.0' // version >= 3.0.0 needs android X libraries
+    implementation 'com.wefika:flowlayout:0.4.1'
+    implementation 'com.googlecode.ez-vcard:ez-vcard:0.10.5'
+    implementation 'org.jxmpp:jxmpp-jid:0.6.4'
+    implementation 'org.hsluv:hsluv:0.2'
+    implementation 'org.conscrypt:conscrypt-android:2.2.1'
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.15' // 1.2.15 is last working version for minSDK 16
+    implementation 'me.drakeet.support:toastcompat:1.1.0'
+    implementation 'org.osmdroid:osmdroid-android:6.1.5'
+    implementation 'com.leinardi.android:speed-dial:3.1.1'
+    implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'com.squareup.okhttp3:okhttp:3.12.12' // versions > 3.12.x don't support API level < 21 anymore
+    implementation 'com.squareup.retrofit2:retrofit:2.6.4' //retrofit needs to stick with 2.6.x for SDK < 21 (https://github.com/square/retrofit/blob/master/CHANGELOG.md)
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.google.guava:guava:30.1-android'
+    implementation 'com.github.AppIntro:AppIntro:6.1.0'
+    implementation "androidx.browser:browser:1.3.0"
+    implementation 'org.webrtc:google-webrtc:1.0.+'
+    implementation fileTree(include: ['libwebrtc-m85.aar'], dir: 'libs')
+}
+
+ext {
+    travisBuild = System.getenv("TRAVIS") == "true"
+    preDexEnabled = System.getProperty("pre-dex", "true")
+}
+
+android {
+
+    compileSdkVersion 29
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 29
+
+        //versionNameSuffix " beta_(2021-04-10)" // " beta_(XXXX-XX-XX)" // activate for beta versions
+        versionCode 326
+        versionName "3.0.8"
+        //resConfigs "en"
+
+        archivesBaseName += "-$versionName"
+        //archivesBaseName += "$versionNameSuffix"  // activate for beta versions
+        applicationId "de.pixart.messenger"
+        multiDexEnabled true
+
+        buildConfigField("String", "LOGTAG", '"blabber.im"')
+        buildConfigField("String", "DOMAIN_LOCK", 'null')
+        buildConfigField("boolean", "SHOW_INTRO", 'true')
+        buildConfigField("String", "UPDATE_URL", '"https://blabber.im/update/"')
+        resValue "string", "applicationId", applicationId
+        resValue "string", "app_name", "blabber.im"
+    }
+
+    dataBinding {
+        enabled true
+    }
+
+    packagingOptions {
+        //X86
+        exclude "lib/x86/**"
+        //X86_64
+        exclude "lib/x86_64/**"
+        //armeabi
+        //exclude "lib/armeabi/**"
+    }
+
+    dexOptions {
+        // Skip pre-dexing when running on Travis CI or when disabled via -Dpre-dex=false.
+        preDexLibraries = preDexEnabled && !travisBuild
+        javaMaxHeapSize "4g"
+        jumboMode true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    flavorDimensions("distribution")
+
+    productFlavors {
+        playstore {
+            dimension "distribution"
+            versionNameSuffix "-playstore"
+            applicationId "im.blabber.messenger"
+            buildConfigField("boolean", "SHOW_MIGRATION_INFO", 'false')
+            resValue "string", "applicationId", applicationId
+        }
+        git {
+            dimension "distribution"
+            buildConfigField("boolean", "SHOW_MIGRATION_INFO", 'true')
+        }
+    }
+    if (project.hasProperty('mStoreFile') &&
+            project.hasProperty('mStorePassword') &&
+            project.hasProperty('mKeyAlias') &&
+            project.hasProperty('mKeyPassword')) {
+        signingConfigs {
+            release {
+                storeFile file(mStoreFile)
+                storePassword mStorePassword
+                keyAlias mKeyAlias
+                keyPassword mKeyPassword
+            }
+        }
+        buildTypes {
+            release {
+                debuggable false
+                signingConfig = signingConfigs.release
+                minifyEnabled true
+                shrinkResources true
+                runProguard true
+                proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            }
+
+            debug {
+                debuggable true
+                buildTypes.release.signingConfig = null
+                minifyEnabled true
+                shrinkResources true
+                runProguard true
+                proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            }
+
+        }
+    }
+
+    lintOptions {
+        error 'StringFormatInvalid' , 'StringFormatMatches'
+        disable 'ExtraTranslation', 'MissingTranslation', 'InvalidPackage', 'MissingQuantity', 'AppCompatResource', 'RestrictedApi'
+        abortOnError true
+    }
+
+    subprojects {
+
+        afterEvaluate {
+            if (getPlugins().hasPlugin('android') ||
+                    getPlugins().hasPlugin('android-library')) {
+
+                configure(android.lintOptions) {
+                    disable 'AndroidGradlePluginVersion', 'MissingTranslation'
+                }
+            }
+
+        }
+    }
+    buildToolsVersion '29.0.2'
+
+    packagingOptions {
+        exclude 'META-INF/BCKEY.DSA'
+        exclude 'META-INF/BCKEY.SF'
+    }
+}
