@@ -201,7 +201,7 @@ android {
     lintOptions {
         error 'StringFormatInvalid' , 'StringFormatMatches'
         disable 'ExtraTranslation', 'MissingTranslation', 'InvalidPackage', 'MissingQuantity', 'AppCompatResource', 'RestrictedApi'
-        abortOnError true
+        abortOnError false
     }
 
     subprojects {
